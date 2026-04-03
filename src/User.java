@@ -4,121 +4,109 @@ import java.sql.*;
 
 public class User extends JFrame {
 
-    private Connection conn;
     private JTextField txtNama, txtHP;
     private JComboBox<String> cbLayanan;
-    private JLabel lblAntrian;
+    private Connection conn;
 
     public User() {
+
         conn = Koneksi.getKoneksi();
 
-        setTitle("Best Laundry - User");
-        setSize(500, 650);
+        setTitle("User Laundry");
+        setSize(500, 500);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
         // BACKGROUND
         ImageIcon icon = new ImageIcon("src/background.jpg");
-        Image img = icon.getImage().getScaledInstance(500, 650, Image.SCALE_SMOOTH);
+        Image img = icon.getImage().getScaledInstance(500, 500, Image.SCALE_SMOOTH);
         JLabel panel = new JLabel(new ImageIcon(img));
         panel.setLayout(null);
 
-        // TITLE
-        JLabel title = new JLabel("Ambil Antrian");
-        title.setBounds(150, 40, 300, 40);
-        title.setFont(new Font("Comic Sans MS", Font.BOLD, 24));
+        // ===== TITLE =====
+        JLabel title = new JLabel("User Laundry");
+        title.setBounds(180, 20, 200, 30);
+        title.setFont(new Font("Comic Sans MS", Font.BOLD, 20));
         title.setForeground(Color.BLACK);
         panel.add(title);
 
-        // INPUT
-        panel.add(label("Nama:", 120));
-        txtNama = input(200,120);
+        // ===== LABEL =====
+        JLabel lNama = label("Nama:", 100);
+        JLabel lHP = label("No HP:", 150);
+        JLabel lLayanan = label("Layanan:", 200);
+
+        panel.add(lNama);
+        panel.add(lHP);
+        panel.add(lLayanan);
+
+        // ===== INPUT =====
+        txtNama = new JTextField();
+        txtNama.setBounds(200, 100, 200, 30);
         panel.add(txtNama);
-        
-        panel.add(label("No HP:", 170));
-        txtHP = input(200,170);
+
+        txtHP = new JTextField();
+        txtHP.setBounds(200, 150, 200, 30);
         panel.add(txtHP);
 
-        panel.add(label("Layanan:", 220));
-        cbLayanan = new JComboBox<>(new String[]{
-            "Cuci",
-            "Cuci + Setrika"
-        });
-        cbLayanan.setBounds(200,220,180,30);
+        cbLayanan = new JComboBox<>(new String[]{"Cuci", "Cuci + Setrika"});
+        cbLayanan.setBounds(200, 200, 200, 30);
         panel.add(cbLayanan);
 
-        // BUTTON AMBIL
-        JButton btnAmbil = button("Ambil Antrian",280);
-        panel.add(btnAmbil);
+        // ===== BUTTON =====
+        JButton btnSimpan = btn("Simpan", 260);
+        JButton btnCek = btn("Cek Status", 310);
+        JButton btnKeluar = btn("Keluar", 360);
 
-        // OUTPUT ANTRIAN
-        lblAntrian = new JLabel("Nomor Antrian: -");
-        lblAntrian.setBounds(140, 340, 250, 40);
-        lblAntrian.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        lblAntrian.setForeground(Color.YELLOW);
-        panel.add(lblAntrian);
-
-        // BUTTON CEK STATUS
-        JButton btnCek = button("Cek Status & Total",400);
+        panel.add(btnSimpan);
         panel.add(btnCek);
+        panel.add(btnKeluar);
 
         add(panel);
 
-        // ACTION
-        btnAmbil.addActionListener(e -> ambilAntrian());
+        // ===== ACTION =====
+        btnSimpan.addActionListener(e -> simpan());
         btnCek.addActionListener(e -> cekStatus());
+        btnKeluar.addActionListener(e -> keluar());
     }
 
-    // COMPONENT
-    private JLabel label(String text, int y){
+    private JLabel label(String text, int y) {
         JLabel l = new JLabel(text);
-        l.setBounds(100,y,100,30);
+        l.setBounds(100, y, 100, 30);
         l.setForeground(Color.WHITE);
         return l;
     }
 
-    private JTextField input(int x, int y){
-        JTextField t = new JTextField();
-        t.setBounds(x,y,180,30);
-        return t;
+    private JButton btn(String text, int y) {
+        JButton b = new JButton(text);
+        b.setBounds(150, y, 200, 40);
+        b.setBackground(new Color(0,150,255));
+        b.setForeground(Color.WHITE);
+        return b;
     }
 
-    private JButton button(String text, int y){
-        JButton btn = new JButton(text);
-        btn.setBounds(140,y,220,40);
-        btn.setBackground(new Color(255,105,180));
-        btn.setForeground(Color.WHITE);
-        return btn;
-    }
-
-    // VALIDASI
-    private boolean validasiInput(String nama, String hp){
-
-        // Nama hanya huruf
-        if(!nama.matches("[a-zA-Z ]+")){
-            JOptionPane.showMessageDialog(this, "Nama hanya boleh huruf!");
-            return false;
-        }
-
-        // HP harus 12 angka
-        if(!hp.matches("\\d{12}")){
-            JOptionPane.showMessageDialog(this, "No HP harus 12 angka dan tidak boleh huruf!");
-            return false;
-        }
-
-        return true;
-    }
-
-    // AMBIL ANTRIAN
-    private void ambilAntrian() {
+    // VALIDASI + INSERT
+    private void simpan() {
         try {
             String nama = txtNama.getText();
             String hp = txtHP.getText();
-            int idLayanan = cbLayanan.getSelectedIndex() + 1;
+            String layanan = cbLayanan.getSelectedItem().toString();
 
-            if(!validasiInput(nama, hp)) return;
+            // VALIDASI NAMA
+            if (!nama.matches("[a-zA-Z ]+")) {
+                JOptionPane.showMessageDialog(this, "Nama hanya huruf!");
+                return;
+            }
 
-            // ambil nomor terakhir
+            // VALIDASI HP (12 ANGKA)
+            if (!hp.matches("\\d{12}")) {
+                JOptionPane.showMessageDialog(this, "No HP harus 12 digit angka!");
+                return;
+            }
+
+            // AMBIL ID LAYANAN
+            int idLayanan = layanan.equals("Cuci") ? 1 : 2;
+
+            // NOMOR ANTRIAN OTOMATIS
             Statement st = conn.createStatement();
             ResultSet rs = st.executeQuery("SELECT MAX(nomor_antrian) FROM antrian");
 
@@ -127,11 +115,13 @@ public class User extends JFrame {
                 nomor = rs.getInt(1) + 1;
             }
 
-            // insert
-            PreparedStatement ps = conn.prepareStatement("INSERT INTO antrian(nama, no_hp, nomor_antrian, id_layanan, status, total) VALUES(?,?,?,?,?,?)");
+            // INSERT
+            PreparedStatement ps = conn.prepareStatement(
+                "INSERT INTO antrian(nama, no_hp, nomor_antrian, id_layanan, status, total) VALUES(?,?,?,?,?,?)"
+            );
 
             ps.setString(1, nama);
-            ps.setString(2, hp); 
+            ps.setString(2, hp);
             ps.setInt(3, nomor);
             ps.setInt(4, idLayanan);
             ps.setString(5, "Menunggu");
@@ -139,9 +129,11 @@ public class User extends JFrame {
 
             ps.executeUpdate();
 
-            lblAntrian.setText("Nomor Antrian: A" + nomor);
+            JOptionPane.showMessageDialog(this,
+                    "Berhasil!\nNomor Antrian: A" + nomor);
 
-            JOptionPane.showMessageDialog(this, "Terima kasih atas kepercayaan anda");
+            txtNama.setText("");
+            txtHP.setText("");
 
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage());
@@ -149,30 +141,43 @@ public class User extends JFrame {
     }
 
     // CEK STATUS + TOTAL
-    private void cekStatus(){
-        try{
-            String nama = txtNama.getText();
+    private void cekStatus() {
+        try {
+            String hp = txtHP.getText();
 
             PreparedStatement ps = conn.prepareStatement(
-                "SELECT status, total FROM antrian WHERE nama=? ORDER BY id DESC LIMIT 1"
+                "SELECT nomor_antrian, status, total FROM antrian WHERE no_hp=? ORDER BY id DESC LIMIT 1"
             );
-            ps.setString(1, nama);
 
+            ps.setString(1, hp);
             ResultSet rs = ps.executeQuery();
 
-            if(rs.next()){
-                String status = rs.getString("status");
-                double total = rs.getDouble("total");
-
+            if (rs.next()) {
                 JOptionPane.showMessageDialog(this,
-                    "Status: " + status + "\nTotal: Rp " + total
+                        "No Antrian: A" + rs.getInt(1) +
+                        "\nStatus: " + rs.getString(2) +
+                        "\nTotal: Rp " + rs.getDouble(3)
                 );
-            }else{
+            } else {
                 JOptionPane.showMessageDialog(this, "Data tidak ditemukan!");
             }
 
-        }catch(Exception e){
+        } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage());
+        }
+    }
+
+    // KELUAR
+    private void keluar() {
+        int konfirmasi = JOptionPane.showConfirmDialog(
+                this,
+                "Yakin mau keluar?",
+                "Konfirmasi",
+                JOptionPane.YES_NO_OPTION
+        );
+
+        if (konfirmasi == JOptionPane.YES_OPTION) {
+            System.exit(0);
         }
     }
 

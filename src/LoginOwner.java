@@ -17,14 +17,12 @@ public class LoginOwner extends JFrame {
         JLabel panel = new JLabel(new ImageIcon(img));
         panel.setLayout(null);
 
-        // TITLE
         JLabel title = new JLabel("LOGIN OWNER");
         title.setBounds(110, 30, 200, 30);
         title.setFont(new Font("Comic Sans MS", Font.BOLD, 20));
         title.setForeground(Color.WHITE);
         panel.add(title);
 
-        // PASSWORD
         JLabel lPass = new JLabel("Password:");
         lPass.setBounds(50, 100, 100, 30);
         lPass.setForeground(Color.WHITE);
@@ -34,7 +32,6 @@ public class LoginOwner extends JFrame {
         txtPass.setBounds(150, 100, 180, 30);
         panel.add(txtPass);
 
-        // BUTTON
         JButton btnLogin = new JButton("Login");
         btnLogin.setBounds(130, 160, 120, 35);
         btnLogin.setBackground(new Color(0,150,255));
@@ -43,7 +40,6 @@ public class LoginOwner extends JFrame {
 
         add(panel);
 
-        // ACTION
         btnLogin.addActionListener(e -> login());
     }
 
@@ -51,11 +47,8 @@ public class LoginOwner extends JFrame {
         String pass = new String(txtPass.getPassword());
 
         if (pass.equals("owner123")) {
-            JOptionPane.showMessageDialog(this, "Login berhasil!");
-
-            new Owner().setVisible(true); // buka owner
+            new Owner().setVisible(true);
             dispose();
-
         } else {
             JOptionPane.showMessageDialog(this, "Password salah!");
         }

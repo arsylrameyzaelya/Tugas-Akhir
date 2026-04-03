@@ -25,23 +25,25 @@ public class Owner extends JFrame {
         JLabel panel = new JLabel(new ImageIcon(img));
         panel.setLayout(null);
 
-        // ===== TITLE =====
+        // TITLE
         JLabel title = new JLabel("Owner Laundry");
-        title.setBounds(290, 20, 300, 40);
+        title.setBounds(280, 20, 300, 40);
         title.setFont(new Font("Comic Sans MS", Font.BOLD, 24));
         title.setForeground(Color.BLACK);
         panel.add(title);
 
-        // ===== BUTTON =====
+        // BUTTON
         JButton btnData = btn("Lihat Data", 80);
         JButton btnTotal = btn("Total Pendapatan", 140);
         JButton btnRata = btn("Rata-rata", 200);
+        JButton btnKeluar = btn("Keluar", 260);
 
         panel.add(btnData);
         panel.add(btnTotal);
         panel.add(btnRata);
+        panel.add(btnKeluar);
 
-        // ===== TABLE =====
+        // TABLE
         model = new DefaultTableModel();
         model.addColumn("ID");
         model.addColumn("Nama");
@@ -58,22 +60,23 @@ public class Owner extends JFrame {
         table.getTableHeader().setForeground(Color.WHITE);
 
         JScrollPane sp = new JScrollPane(table);
-        sp.setBounds(50, 280, 650, 250);
+        sp.setBounds(50, 320, 650, 250);
         panel.add(sp);
 
-        // ===== OUTPUT =====
+        // OUTPUT
         hasil = new JLabel("Output: -");
-        hasil.setBounds(50, 550, 650, 30);
+        hasil.setBounds(50, 580, 650, 30);
         hasil.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        hasil.setForeground(Color.WHITE);
+        hasil.setForeground(Color.YELLOW);
         panel.add(hasil);
 
         add(panel);
 
-        // ===== ACTION =====
+        // ACTION
         btnData.addActionListener(e -> tampilData());
         btnTotal.addActionListener(e -> totalPendapatan());
         btnRata.addActionListener(e -> rataRata());
+        btnKeluar.addActionListener(e -> keluar());
     }
 
     private JButton btn(String text, int y) {
@@ -84,7 +87,7 @@ public class Owner extends JFrame {
         return b;
     }
 
-    // LIHAT DATA
+    // LIHAT DATA (JOIN)
     private void tampilData() {
         try {
             model.setRowCount(0);
@@ -112,7 +115,7 @@ public class Owner extends JFrame {
         }
     }
 
-    // TOTAL
+    // TOTAL (SUM)
     private void totalPendapatan() {
         try {
             Statement st = conn.createStatement();
@@ -127,7 +130,7 @@ public class Owner extends JFrame {
         }
     }
 
-    // RATA-RATA
+    // RATA-RATA (AVG)
     private void rataRata() {
         try {
             Statement st = conn.createStatement();
@@ -142,7 +145,17 @@ public class Owner extends JFrame {
         }
     }
 
-    public static void main(String[] args) {
-        new Owner().setVisible(true);
+    // KELUAR
+    private void keluar() {
+        int konfirmasi = JOptionPane.showConfirmDialog(
+                this,
+                "Yakin mau keluar?",
+                "Konfirmasi",
+                JOptionPane.YES_NO_OPTION
+        );
+
+        if (konfirmasi == JOptionPane.YES_OPTION) {
+          System.exit(0); 
+        }
     }
 }

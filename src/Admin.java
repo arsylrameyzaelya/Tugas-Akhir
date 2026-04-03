@@ -3,7 +3,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.sql.*;
 
-// INTERFACE
+//INTERFACE
 interface Operasi {
     void tampilData();
 }
@@ -13,7 +13,6 @@ abstract class BaseApp extends JFrame {
     abstract void setJudul();
 }
 
-// CLASS ADMIN
 public class Admin extends BaseApp implements Operasi {
 
     private Connection conn;
@@ -29,7 +28,7 @@ public class Admin extends BaseApp implements Operasi {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-        // BACKGROUND GAMBAR
+        // BACKGROUND
         ImageIcon icon = new ImageIcon("src/background.jpg");
         Image img = icon.getImage().getScaledInstance(700, 600, Image.SCALE_SMOOTH);
         JLabel panel = new JLabel(new ImageIcon(img));
@@ -46,39 +45,34 @@ public class Admin extends BaseApp implements Operasi {
         JButton btnData = btn("Lihat Data", 80);
         JButton btnUpdate = btn("Update Status", 140);
         JButton btnHitung = btn("Hitung Total", 200);
+        JButton btnKeluar = btn("Keluar", 260);
 
         panel.add(btnData);
         panel.add(btnUpdate);
         panel.add(btnHitung);
+        panel.add(btnKeluar);
 
-        // ===== TABLE MODEL =====
+        // ===== TABLE =====
         model = new DefaultTableModel();
         model.addColumn("ID");
         model.addColumn("Nama");
+        model.addColumn("No HP");
         model.addColumn("Antrian");
         model.addColumn("Layanan");
         model.addColumn("Status");
         model.addColumn("Total");
-        model.addColumn("No. Hp");
 
         table = new JTable(model);
 
-        
-        // TABLE PUTIH (BERSIH & JELAS)
-        table.setOpaque(true);
+        // TABLE PUTIH
         table.setBackground(Color.WHITE);
         table.setForeground(Color.BLACK);
-
-        // HEADER
         table.getTableHeader().setBackground(new Color(255,105,180));
         table.getTableHeader().setForeground(Color.WHITE);
+        table.setGridColor(Color.GRAY);
 
-        // SCROLL NORMAL (PUTIH)
         JScrollPane sp = new JScrollPane(table);
-        sp.setOpaque(true);
-        sp.getViewport().setOpaque(true);
-        sp.setBounds(50, 270, 600, 250);
-
+        sp.setBounds(50, 320, 600, 220);
         panel.add(sp);
 
         add(panel);
@@ -87,9 +81,9 @@ public class Admin extends BaseApp implements Operasi {
         btnData.addActionListener(e -> tampilData());
         btnUpdate.addActionListener(e -> updateStatus());
         btnHitung.addActionListener(e -> hitungTotal());
+        btnKeluar.addActionListener(e -> keluar());
     }
 
-    // POLYMORPHISM
     @Override
     void setJudul() {
         setTitle("Best Laundry - Admin");
@@ -103,13 +97,13 @@ public class Admin extends BaseApp implements Operasi {
         return b;
     }
 
-    // JOIN + SELECT
+    // 🔹 LIHAT DATA (JOIN)
     @Override
     public void tampilData() {
         try {
             model.setRowCount(0);
 
-            String sql = "SELECT a.id, a.nama, a.nomor_antrian, l.nama_layanan, a.status, a.total, a.no_hp " +
+            String sql = "SELECT a.id, a.nama, a.no_hp, a.nomor_antrian, l.nama_layanan, a.status, a.total " +
                          "FROM antrian a JOIN layanan l ON a.id_layanan = l.id_layanan";
 
             Statement st = conn.createStatement();
@@ -119,12 +113,11 @@ public class Admin extends BaseApp implements Operasi {
                 model.addRow(new Object[]{
                         rs.getInt("id"),
                         rs.getString("nama"),
+                        rs.getString("no_hp"),
                         "A" + rs.getInt("nomor_antrian"),
                         rs.getString("nama_layanan"),
                         rs.getString("status"),
-                        rs.getDouble("total"),
-                        rs.getString("no_hp")
-     
+                        rs.getDouble("total")
                 });
             }
 
@@ -133,7 +126,7 @@ public class Admin extends BaseApp implements Operasi {
         }
     }
 
-    // UPDATE STATUS (TRANSACTION + DROPDOWN)
+    // UPDATE STATUS (TRANSACTION)
     private void updateStatus() {
         try {
             int row = table.getSelectedRow();
@@ -175,7 +168,7 @@ public class Admin extends BaseApp implements Operasi {
         }
     }
 
-    // STORED PROCEDURE
+    // 🔹 STORED PROCEDURE
     private void hitungTotal() {
         try {
             int row = table.getSelectedRow();
@@ -203,7 +196,20 @@ public class Admin extends BaseApp implements Operasi {
         }
     }
 
-    // MAIN METHOD
+    // 🔹 KELUAR
+    private void keluar() {
+        int konfirmasi = JOptionPane.showConfirmDialog(
+                this,
+                "Yakin mau keluar?",
+                "Konfirmasi",
+                JOptionPane.YES_NO_OPTION
+        );
+
+        if (konfirmasi == JOptionPane.YES_OPTION) {
+            System.exit(0);
+        }
+    }
+
     public static void main(String[] args) {
         new Admin().setVisible(true);
     }
