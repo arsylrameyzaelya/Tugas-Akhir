@@ -35,7 +35,7 @@ public class Admin extends JFrame {
         JButton btnData = createButton("Lihat Data", 100);
         JButton btnUpdate = createButton("Update Status", 160);
         JButton btnHitung = createButton("Hitung Total", 220);
-        JButton btnHapus = createButton("Hapus Data", 280); // 🔥 TAMBAHAN
+        JButton btnHapus = createButton("Hapus Data", 280); 
         JButton btnKeluar = createButton("Keluar", 340);
 
         panel.add(btnData);
@@ -88,7 +88,7 @@ public class Admin extends JFrame {
         return btn;
     }
 
-    // 🔍 READ
+    // READ
     private void tampilData() {
         try {
             model.setRowCount(0);
@@ -116,7 +116,7 @@ public class Admin extends JFrame {
         }
     }
 
-    // ✏ UPDATE + TRANSACTION
+    // UPDATE + TRANSACTION
     private void updateStatus() {
         try {
             int row = table.getSelectedRow();
@@ -160,7 +160,7 @@ public class Admin extends JFrame {
         }
     }
 
-    // 💰 STORED PROCEDURE
+    // STORED PROCEDURE
     private void hitungTotal() {
         try {
             int id = Integer.parseInt(JOptionPane.showInputDialog("ID"));
@@ -179,7 +179,7 @@ public class Admin extends JFrame {
         }
     }
 
-    // 🗑 DELETE
+    // DELETE
     private void hapusData() {
         try {
             int row = table.getSelectedRow();
