@@ -3,17 +3,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.sql.*;
 
-//INTERFACE
-interface Operasi {
-    void tampilData();
-}
-
-// ABSTRACT CLASS
-abstract class BaseApp extends JFrame {
-    abstract void setJudul();
-}
-
-public class Admin extends BaseApp implements Operasi {
+public class Admin extends JFrame {
 
     private Connection conn;
     private JTable table;
@@ -23,37 +13,44 @@ public class Admin extends BaseApp implements Operasi {
 
         conn = Koneksi.getKoneksi();
 
-        setJudul();
-        setSize(700, 600);
+        setTitle("Best Laundry - Admin");
+        setSize(600, 600);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
         // BACKGROUND
         ImageIcon icon = new ImageIcon("src/background.jpg");
-        Image img = icon.getImage().getScaledInstance(700, 600, Image.SCALE_SMOOTH);
+        Image img = icon.getImage().getScaledInstance(600, 600, Image.SCALE_SMOOTH);
         JLabel panel = new JLabel(new ImageIcon(img));
         panel.setLayout(null);
 
-        // ===== TITLE =====
+        // TITLE
         JLabel title = new JLabel("Admin Laundry");
-        title.setBounds(260, 20, 300, 40);
+        title.setBounds(180, 30, 300, 40);
         title.setFont(new Font("Comic Sans MS", Font.BOLD, 24));
         title.setForeground(Color.BLACK);
         panel.add(title);
 
         // ===== BUTTON =====
-        JButton btnData = btn("Lihat Data", 80);
-        JButton btnUpdate = btn("Update Status", 140);
-        JButton btnHitung = btn("Hitung Total", 200);
-        JButton btnKeluar = btn("Keluar", 260);
+        JButton btnData = createButton("Lihat Data", 100);
+        JButton btnUpdate = createButton("Update Status", 160);
+        JButton btnHitung = createButton("Hitung Total", 220);
+        JButton btnHapus = createButton("Hapus Data", 280); // 🔥 TAMBAHAN
+        JButton btnKeluar = createButton("Keluar", 340);
 
         panel.add(btnData);
         panel.add(btnUpdate);
         panel.add(btnHitung);
+        panel.add(btnHapus);
         panel.add(btnKeluar);
 
         // ===== TABLE =====
         model = new DefaultTableModel();
+        table = new JTable(model);
+        table.getTableHeader().setBackground(new Color(255, 105, 180));
+        table.getTableHeader().setForeground(Color.WHITE);
+        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
+
         model.addColumn("ID");
         model.addColumn("Nama");
         model.addColumn("No HP");
@@ -62,17 +59,13 @@ public class Admin extends BaseApp implements Operasi {
         model.addColumn("Status");
         model.addColumn("Total");
 
-        table = new JTable(model);
-
-        // TABLE PUTIH
-        table.setBackground(Color.WHITE);
-        table.setForeground(Color.BLACK);
-        table.getTableHeader().setBackground(new Color(255,105,180));
-        table.getTableHeader().setForeground(Color.WHITE);
-        table.setGridColor(Color.GRAY);
-
         JScrollPane sp = new JScrollPane(table);
-        sp.setBounds(50, 320, 600, 220);
+        sp.setBounds(50, 400, 500, 150);
+
+        // BIAR PUTIH
+        table.setBackground(Color.WHITE);
+        sp.getViewport().setBackground(Color.WHITE);
+
         panel.add(sp);
 
         add(panel);
@@ -81,25 +74,22 @@ public class Admin extends BaseApp implements Operasi {
         btnData.addActionListener(e -> tampilData());
         btnUpdate.addActionListener(e -> updateStatus());
         btnHitung.addActionListener(e -> hitungTotal());
-        btnKeluar.addActionListener(e -> keluar());
+        btnHapus.addActionListener(e -> hapusData()); // 🔥 DELETE
+        btnKeluar.addActionListener(e -> System.exit(0));
     }
 
-    @Override
-    void setJudul() {
-        setTitle("Best Laundry - Admin");
+    // STYLE BUTTON (PINK)
+    private JButton createButton(String text, int y) {
+        JButton btn = new JButton(text);
+        btn.setBounds(150, y, 250, 40);
+        btn.setBackground(new Color(255, 105, 180));
+        btn.setForeground(Color.WHITE);
+        btn.setFocusPainted(false);
+        return btn;
     }
 
-    private JButton btn(String text, int y) {
-        JButton b = new JButton(text);
-        b.setBounds(220, y, 250, 40);
-        b.setBackground(new Color(255,105,180));
-        b.setForeground(Color.WHITE);
-        return b;
-    }
-
-    // 🔹 LIHAT DATA (JOIN)
-    @Override
-    public void tampilData() {
+    // 🔍 READ
+    private void tampilData() {
         try {
             model.setRowCount(0);
 
@@ -126,16 +116,17 @@ public class Admin extends BaseApp implements Operasi {
         }
     }
 
-    // UPDATE STATUS (TRANSACTION)
+    // ✏ UPDATE + TRANSACTION
     private void updateStatus() {
         try {
             int row = table.getSelectedRow();
+
             if (row == -1) {
                 JOptionPane.showMessageDialog(this, "Pilih data dulu!");
                 return;
             }
 
-            int id = (int) model.getValueAt(row, 0);
+            int id = Integer.parseInt(model.getValueAt(row, 0).toString());
 
             String[] pilihan = {"Menunggu", "Diproses", "Selesai"};
             String status = (String) JOptionPane.showInputDialog(
@@ -153,42 +144,34 @@ public class Admin extends BaseApp implements Operasi {
             PreparedStatement ps = conn.prepareStatement(
                     "UPDATE antrian SET status=? WHERE id=?"
             );
+
             ps.setString(1, status);
             ps.setInt(2, id);
             ps.executeUpdate();
 
             conn.commit();
 
-            JOptionPane.showMessageDialog(this, "Berhasil!");
+            JOptionPane.showMessageDialog(this, "Status berhasil diupdate!");
             tampilData();
 
         } catch (Exception e) {
             try { conn.rollback(); } catch(Exception ex){}
-            JOptionPane.showMessageDialog(this, "Gagal!");
+            JOptionPane.showMessageDialog(this, "Gagal update!");
         }
     }
 
-    // 🔹 STORED PROCEDURE
+    // 💰 STORED PROCEDURE
     private void hitungTotal() {
         try {
-            int row = table.getSelectedRow();
-            if (row == -1) {
-                JOptionPane.showMessageDialog(this, "Pilih data dulu!");
-                return;
-            }
-
-            int id = (int) model.getValueAt(row, 0);
-
-            double berat = Double.parseDouble(
-                    JOptionPane.showInputDialog("Masukkan berat (kg):")
-            );
+            int id = Integer.parseInt(JOptionPane.showInputDialog("ID"));
+            double berat = Double.parseDouble(JOptionPane.showInputDialog("Berat (kg)"));
 
             CallableStatement cs = conn.prepareCall("CALL hitung_total(?, ?)");
             cs.setInt(1, id);
             cs.setDouble(2, berat);
             cs.execute();
 
-            JOptionPane.showMessageDialog(this, "Total dihitung!");
+            JOptionPane.showMessageDialog(this, "Total berhasil dihitung!");
             tampilData();
 
         } catch (Exception e) {
@@ -196,17 +179,40 @@ public class Admin extends BaseApp implements Operasi {
         }
     }
 
-    // 🔹 KELUAR
-    private void keluar() {
-        int konfirmasi = JOptionPane.showConfirmDialog(
-                this,
-                "Yakin mau keluar?",
-                "Konfirmasi",
-                JOptionPane.YES_NO_OPTION
-        );
+    // 🗑 DELETE
+    private void hapusData() {
+        try {
+            int row = table.getSelectedRow();
 
-        if (konfirmasi == JOptionPane.YES_OPTION) {
-            System.exit(0);
+            if (row == -1) {
+                JOptionPane.showMessageDialog(this, "Pilih data dulu!");
+                return;
+            }
+
+            int id = Integer.parseInt(model.getValueAt(row, 0).toString());
+
+            int konfirmasi = JOptionPane.showConfirmDialog(
+                    this,
+                    "Yakin mau hapus data?",
+                    "Konfirmasi",
+                    JOptionPane.YES_NO_OPTION
+            );
+
+            if (konfirmasi == JOptionPane.YES_OPTION) {
+
+                PreparedStatement ps = conn.prepareStatement(
+                        "DELETE FROM antrian WHERE id=?"
+                );
+
+                ps.setInt(1, id);
+                ps.executeUpdate();
+
+                JOptionPane.showMessageDialog(this, "Data berhasil dihapus!");
+                tampilData();
+            }
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
         }
     }
 
