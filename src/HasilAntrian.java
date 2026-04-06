@@ -3,38 +3,91 @@ import java.awt.*;
 
 public class HasilAntrian extends JFrame {
 
-    public HasilAntrian(String nama, int nomor) {
+    public HasilAntrian(String nama,int nomor){
 
         setTitle("Hasil Antrian");
+
         setSize(400,300);
+
         setLocationRelativeTo(null);
 
-        ImageIcon icon = new ImageIcon("src/background.jpg");
-        Image img = icon.getImage().getScaledInstance(400,300,Image.SCALE_SMOOTH);
-        JLabel panel = new JLabel(new ImageIcon(img));
-        panel.setLayout(null);
+        ImageIcon icon =
+                new ImageIcon("src/background.jpg");
 
-        JLabel l1 = new JLabel("Nama : " + nama);
-        l1.setBounds(120,80,250,30);
-        l1.setForeground(Color.GREEN);
-        l1.setFont(new Font("Arial", Font.BOLD, 16));
-        panel.add(l1);
+        Image img =
+                icon.getImage().getScaledInstance(
+                        400,300,
+                        Image.SCALE_SMOOTH);
 
-        JLabel l2 = new JLabel("Nomor Antrian : A" + nomor);
-        l2.setBounds(120,120,250,30);
-        l2.setForeground(Color.GREEN);
-        l2.setFont(new Font("Arial", Font.BOLD, 16));
-        panel.add(l2);
+        JLabel background =
+                new JLabel(new ImageIcon(img));
 
-        JButton kembali = new JButton("Kembali");
-        kembali.setBounds(140,170,100,35);
-        panel.add(kembali);
+        background.setLayout(null);
+
+        JPanel box =
+                new JPanel();
+
+        box.setLayout(null);
+
+        box.setBounds(70,60,260,140);
+
+        box.setBackground(Color.WHITE);
+
+        box.setBorder(
+                BorderFactory.createLineBorder(
+                        new Color(255,105,180),2));
+
+        background.add(box);
+
+        JLabel title =
+                new JLabel("HASIL ANTRIAN");
+
+        title.setBounds(50,10,200,30);
+
+        title.setFont(new Font(
+                "Arial",Font.BOLD,16));
+
+        title.setForeground(
+                new Color(255,105,180));
+
+        box.add(title);
+
+        JLabel l1 =
+                new JLabel("Nama : "+nama);
+
+        l1.setBounds(30,50,200,25);
+
+        l1.setFont(new Font(
+                "Arial",Font.BOLD,14));
+
+        box.add(l1);
+
+        JLabel l2 =
+                new JLabel("Nomor : A"+nomor);
+
+        l2.setBounds(30,80,200,25);
+
+        l2.setFont(new Font(
+                "Arial",Font.BOLD,14));
+
+        box.add(l2);
+
+        JButton kembali =
+                new JButton("Kembali");
+
+        kembali.setBounds(90,105,90,25);
+
+        box.add(kembali);
 
         kembali.addActionListener(e -> {
+
             new User().setVisible(true);
+
             dispose();
+
         });
 
-        add(panel);
+        add(background);
+
     }
 }
