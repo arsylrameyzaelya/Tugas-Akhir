@@ -3,7 +3,8 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.sql.*;
 
-public class Admin extends JFrame {
+public class Admin extends JFrame 
+implements Runnable{
 
     private Connection conn;
     private JTable table;
@@ -166,6 +167,25 @@ public class Admin extends JFrame {
         return btn;
     }
 
+    // POLYMORPHISM (OVERRIDING)
+
+@Override
+public void setVisible(boolean status) {
+
+    System.out.println("Admin Window Dibuka");
+
+    super.setVisible(status);
+
+}
+
+// ===== INTERFACE =====
+    @Override
+    public void run() {
+
+        System.out.println("Admin sedang berjalan");
+
+    }
+    
     // READ VIEW
 
     private void tampilData() {

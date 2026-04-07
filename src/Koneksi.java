@@ -2,7 +2,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class Koneksi {
+public abstract class Koneksi {
     private static Connection conn;
 
     public static Connection getKoneksi() {

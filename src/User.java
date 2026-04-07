@@ -4,6 +4,27 @@ import java.sql.*;
 
 public class User extends JFrame {
 
+    // ENKAPSULASI
+private String namaUser;
+private String noHpUser;
+
+// GETTER
+public String getNamaUser() {
+    return namaUser;
+}
+
+public String getNoHpUser() {
+    return noHpUser;
+}
+
+// SETTER
+public void setNamaUser(String nama) {
+    this.namaUser = nama;
+}
+
+public void setNoHpUser(String hp) {
+    this.noHpUser = hp;
+}
     private JTextField txtNama, txtHP;
     private JComboBox<String> cbLayanan;
     private Connection conn;
