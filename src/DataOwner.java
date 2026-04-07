@@ -87,7 +87,7 @@ public class DataOwner extends JFrame {
 
             ResultSet rs =
                     st.executeQuery(
-                            "SELECT * FROM antrian");
+                            "SELECT * FROM view_laporan");
 
             while(rs.next()){
 
