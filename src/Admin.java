@@ -329,12 +329,11 @@ public void setVisible(boolean status) {
             cs.setDouble(2, berat);
 
             cs.execute();
+            tampilData();
 
             JOptionPane.showMessageDialog(
                     this,
                     "Total berhasil dihitung!");
-
-            tampilData();
 
         }
 
