@@ -455,10 +455,5 @@ public void setVisible(boolean status) {
 
     }
 
-    public static void main(String[] args) {
-
-        new Admin().setVisible(true);
-
-    }
 
 }
