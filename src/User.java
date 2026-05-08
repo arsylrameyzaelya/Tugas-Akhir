@@ -204,7 +204,7 @@ public void setNoHpUser(String hp) {
             if(!hp.matches("\\d{12}")){
                 JOptionPane.showMessageDialog(
                         this,
-                        "No HP harus 12 digit!");
+                        "No HP harus 12 digit dan berupa angka!");
                 return;
             }
 
