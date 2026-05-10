@@ -1,0 +1,142 @@
+=========================
+    MEMBUAT DATABASE
+=========================
+CREATE DATABASE tugas_akhir;
+USE tugas_akhir;
+
+=========================
+     TABEL LAYANAN
+=========================
+CREATE TABLE layanan (
+    id_layanan INT AUTO_INCREMENT PRIMARY KEY,
+    nama_layanan VARCHAR(50),
+    harga_perkg DOUBLE
+);
+
+INSERT INTO layanan (nama_layanan, harga_perkg) VALUES
+('Cuci', 5000),
+('Cuci + Setrika', 7000);
+
+=========================
+     TABEL ANTRIAN
+=========================
+CREATE TABLE antrian (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nama VARCHAR(100),
+    nomor_antrian INT,
+    id_layanan INT,
+    berat DOUBLE,
+    status VARCHAR(50),
+    total DOUBLE,
+    no_hp VARCHAR(15),
+    
+    FOREIGN KEY (id_layanan) 
+    REFERENCES layanan(id_layanan)
+);
+
+=========================
+    RELASI DAN JOIN
+=========================
+SELECT 
+    antrian.nama,
+    layanan.nama_layanan,
+    layanan.harga_perkg
+FROM antrian
+JOIN layanan 
+ON antrian.id_layanan = layanan.id_layanan;
+
+=======================================================
+                        SUBQUERY
+(Menampilkan pelanggan dengan total di atas rata-rata)
+=======================================================
+SELECT nama, total
+FROM antrian
+WHERE total > (
+    SELECT AVG(total)
+    FROM antrian
+);
+
+=========================
+     FUNGSI AGREGAT
+=========================
+
+-- Total pendapatan
+SELECT SUM(total) AS total_pendapatan
+FROM antrian;
+
+-- Rata-rata transaksi
+SELECT AVG(total) AS rata_rata_transaksi
+FROM antrian;
+
+-- Jumlah pelanggan
+SELECT COUNT(*) AS jumlah_pelanggan
+FROM antrian;
+
+=========================
+          VIEW
+=========================
+CREATE VIEW view_laporan_laundry AS
+SELECT 
+    a.nama,
+    a.nomor_antrian,
+    l.nama_layanan,
+    a.berat,
+    a.status,
+    a.total
+FROM antrian a
+JOIN layanan l 
+ON a.id_layanan = l.id_layanan;
+
+=========================
+     STORED PROCEDURE
+=========================
+DELIMITER //
+
+CREATE PROCEDURE hitung_total(
+    IN id_param INT,
+    IN berat_param DOUBLE
+)
+BEGIN
+    DECLARE harga DOUBLE;
+
+    SELECT harga_perkg INTO harga
+    FROM layanan
+    JOIN antrian 
+    ON layanan.id_layanan = antrian.id_layanan
+    WHERE antrian.id = id_param;
+
+    UPDATE antrian
+    SET berat = berat_param,
+        total = harga * berat_param
+    WHERE id = id_param;
+
+END //
+
+DELIMITER ;
+
+=================================
+            TRIGGER
+(agar Status otomatis "Menunggu")
+=================================
+DELIMITER //
+
+CREATE TRIGGER trigger_status_default
+BEFORE INSERT ON antrian
+FOR EACH ROW
+BEGIN
+    SET NEW.status = 'Menunggu';
+END //
+
+DELIMITER ;
+
+=========================
+  DATABASE TRANSACTION
+=========================
+START TRANSACTION;
+
+INSERT INTO antrian
+(nama, nomor_antrian, id_layanan, berat, no_hp)
+VALUES
+('Budi', 1, 1, 3, '08123456789');
+
+COMMIT;
